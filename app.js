@@ -1,5 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const https = require('https');
+const fs = require('fs');
 const cors = require('cors');
 const helmet = require('helmet');
 
@@ -23,6 +25,14 @@ const postRoutes = require('./routes/posts');
 app.use('/auth', authRoutes);
 app.use('/posts', postRoutes);
 
-app.listen(PORT, () => {
+// Load SSL key and certificate
+const privateKey = fs.readFileSync('server.key', 'utf8');
+const certificate = fs.readFileSync('server.cert', 'utf8');
+const credentials = { key: privateKey, cert: certificate };
+
+// Create an HTTPS server
+const httpsServer = https.createServer(credentials, app);
+
+httpsServer.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
 });
